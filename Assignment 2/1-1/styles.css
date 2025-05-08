@@ -1,0 +1,29 @@
+.outlined{
+    stroke: black;
+    stroke-width: 4px;
+}
+
+.body{
+    fill: pink;
+}
+
+.eye1{
+    fill: black;
+}
+
+.eye2{
+    fill: white;
+}
+
+.mouth{
+    fill: red;
+    
+}
+
+.toe{
+    fill:magenta;
+}
+
+.arm{
+    fill: pink;
+}
