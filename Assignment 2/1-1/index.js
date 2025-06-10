@@ -14,7 +14,7 @@ svg.append("ellipse")
     .attr("transform", "rotate(75 180 200)")
     .attr("class", "arm outlined");
 
-    svg.append("ellipse")
+svg.append("ellipse")
     .attr("cx", 320)
     .attr("cy", 260)
     .attr("rx", 80)
