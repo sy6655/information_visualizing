@@ -124,7 +124,6 @@ function drawBarChart(data) {
 
     // 6. Draw the labels for bars
 
-
     const xScale = d3.scaleLinear()
         .domain([0, 100])
         .range([0, width]);
@@ -217,5 +216,6 @@ function drawBarChart(data) {
     legend.append("rect").attr('x', 0).attr('y', 36).attr('width', 12).attr('height', 12).style("fill", "#2b8cbe")
     legend.append("text").attr("x", 18).attr("y", 18).text("The rate of fully vaccinated people").style("font-size", "15px").attr('text-anchor', 'start').attr('alignment-baseline', 'hanging');
     legend.append("text").attr("x", 18).attr("y", 36).text("The rate of partially vaccinated people").style("font-size", "15px").attr('text-anchor', 'start').attr('alignment-baseline', 'hanging');
+
 
 }

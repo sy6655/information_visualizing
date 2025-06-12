@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chocolate Sales Table with Column Filters</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
+    th { background-color: #f2f2f2; cursor: pointer; }
+    .sort-asc::after { content: " ▲"; }
+    .sort-desc::after { content: " ▼"; }
+    .pagination { margin-top: 10px; }
+    .filter-row input, .filter-row select {
+      width: 100%; padding: 4px;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+  <h2>Chocolate Sales Table</h2>
+  <div id="table-container"></div>
+  <div class="pagination">
+    <button id="prev-page">Previous</button>
+    <span id="page-info"></span>
+    <button id="next-page">Next</button>
+  </div>
+  <script src="Table.js"></script>
+</body>
+</html>

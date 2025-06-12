@@ -1,3 +1,5 @@
+// const { version } = require("react");
+
 console.log("hello world!") // You can see this in the browser console if you run the server correctly
 
 d3.csv('data/owid-covid-data.csv')
@@ -117,33 +119,54 @@ function drawBubbleChart(data) {
         .domain(d3.extent(data, d => d.population))
         .range([5, 50]);
     // 6. Draw Bubbles
-    svg.append("g")
-        .selectAll("circle")
+    const chartGroup = svg.append("g")
+        .attr("class", "zoom-target")
+
+    chartGroup.selectAll("circle")
         .data(data)
         .enter()
         .append("circle")
+        .attr("class", "bubble")
         .attr("cx", d => xScale(d.gdp_per_capita))
         .attr("cy", d => yScale(d.life_expectancy))
         .attr("fill", d => cScale(d.continent))
         .attr('stroke', "black")
-        .attr("r", d => sScale(d.population));  
+        .attr("r", d => sScale(d.population))
+        .call(
+            d3.drag()
+                .on("start", function (event, d) {
+                    d3.select(this).raise().attr("stroke", "black");
+                })
+                .on("drag", function (event, d) {
+                    d3.select(this)
+                        .attr("stroke", "red")
+                        .attr("cx", d.x = event.x)
+                        .attr("cy", d.y = event.y);
+                })
+                .on("end", function (event, d) { 
+                    d3.select(this)
+                        .attr("cx",  d => xScale(d.gdp_per_capita))
+                        .attr("cy", d => yScale(d.life_expectancy))
+                        .attr("stroke", "black");
+                })
+        );
 
     // Define the position of each axis
     const xAxis = d3.axisBottom(xScale);
     const yAxis = d3.axisLeft(yScale);
-
+    
     // Draw axes 
-    svg.append("g")
+    chartGroup.append("g")
         .attr('class', 'x-axis')
         .attr('transform', `translate(0, ${height})`)
         .call(xAxis);
 
-    svg.append("g")
+    chartGroup.append("g")
         .attr('class', 'y-axis')
         .call(yAxis)
 
     // Add x-axis label 
-    svg.append("text")
+    chartGroup.append("text")
         .attr("text-anchor", "end")
         .attr("x", width)
         .attr("y", height + 40)
@@ -151,7 +174,7 @@ function drawBubbleChart(data) {
         .text("GDP Per Capita");
 
     // Add y-axis label 
-    svg.append("text")
+    chartGroup.append("text")
         .attr("text-anchor", "end")
         .attr("x", 0)
         .attr("y", -60)
@@ -161,7 +184,7 @@ function drawBubbleChart(data) {
 
     // Add legend
     const size = 30
-    svg.selectAll("legend")
+    chartGroup.selectAll("legend")
         .data(continentList)
         .enter()
         .append("circle")
@@ -172,7 +195,7 @@ function drawBubbleChart(data) {
         .attr("stroke", "black")
 
     // Add legend texts
-    svg.selectAll("legend_label")
+    chartGroup.selectAll("legend_label")
         .data(continentList)
         .enter()
         .append("text")
@@ -180,5 +203,56 @@ function drawBubbleChart(data) {
         .attr("y", function (d, i) { return i * size + (size / 2) })
         .text(function (d) { return d })
         .attr("text-anchor", "start")
+            
+    const zoom = d3.zoom()
+        .scaleExtent([1, 5])
+        .translateExtent([[0,0], [width, height]])
+        .on("zoom", zoomed);
+    
+    function zoomed(event) {
+        const transform = event.transform;
+        // chartGroup.attr("transform", transform);
+        const newX = transform.rescaleX(xScale);
+        const newY = transform.rescaleY(yScale);
 
+        svg.select(".x-axis").call(d3.axisBottom(newX));
+        svg.select(".y-axis").call(d3.axisLeft(newY));
+
+        chartGroup.selectAll("circle")
+            .attr("cx", d => newX(d.gdp_per_capita))
+            .attr("cy", d => newY(d.life_expectancy));
+    };
+    svg.call(zoom);
+
+    // const brush = d3.brush()
+    //     .extent([[0,0],[width,height]])
+    //     .on("end", function(event) {
+    //         svg.selectAll("circle")
+    //             .attr("stroke", "black")
+    //             .attr("stroke-width", 1);
+    //     })
+    //     .on("brush", function (event){
+    //         if(!event.selection) return;
+    //         const selection = event.selection;
+    //         svg.selectAll("circle")
+    //             .attr("stroke", d => {
+    //             const cx = xScale(d.gdp_per_capita);
+    //             const cy = yScale(d.life_expectancy);
+    //             const selected = selection &&
+    //                 cx >= selection[0][0] && cx <= selection[1][0] &&
+    //                 cy >= selection[0][1] && cy <= selection[1][1];
+    //             return selected ? "red" : "black";
+    //         })
+    //         .attr("stroke-width", d => {
+    //             const cx = xScale(d.gdp_per_capita);
+    //             const cy = yScale(d.life_expectancy);
+    //             const selected = selection &&
+    //                 cx >= selection[0][0] && cx <= selection[1][0] &&
+    //                 cy >= selection[0][1] && cy <= selection[1][1];
+    //             return selected ? 3 : 1;
+    //         });
+    //     });
+    // svg.append("g")
+    //     .attr("class", "brush")
+    //     .call(brush);
 }

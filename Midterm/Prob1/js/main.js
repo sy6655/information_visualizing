@@ -72,6 +72,7 @@ function drawLineChart(data) {
     const yAxis = d3.axisLeft(yScale);
 
     // Draw axes 
+    // no.5
     const xAxisGroup = svg.append("g")
         .attr('class', 'x-axis')
         .attr('transform', `translate(0, ${height})`)
@@ -97,6 +98,7 @@ function drawLineChart(data) {
         .data(groupedData)
         .enter()
         .append('path')
+        .attr('class', 'line')
         .attr('fill', 'none')
         .attr('stroke', d => cScale(d[0])) // no.2
         .attr('stroke-width', 1.5)
@@ -134,6 +136,60 @@ function drawLineChart(data) {
         .attr("font-size", 17)
         .text("Life Expectency")
         .attr("transform", "rotate(270)");
+    
+    // const zoom = d3.zoom()
+    //     .scaleExtent([1,5])
+    //     .translateExtent([[0,0], [width, height]])
+    //     .on("zoom", zoomed);
+    
+    // function zoomed (event) {
+    //     const transform = event.transform;
+    //     svg.attr("transform", transform);
+    //     // const newX = transform.rescaleX(xScale);
+    //     // const newY = transform.rescaleY(yScale);
 
+    //     // svg.select(".x-axis").call(d3.axisBottom(newX));
+    //     // svg.select(".y-axis").call(d3.axisLeft(newY));
+    //     // svg.selectAll(".line")
+    //     //     .attr("d", d => d3.line()
+    //     //         .x(p => newX(p.year))
+    //     //         .y(p => newY(p.value))
+    //     //         (d[1])
+    //     //     );
+    // };
+    // svg.call(zoom);
 
+    const brush = d3.brush()
+        .extent([[0,0],[width,height]])
+        .on("end", function(event) {
+            svg.selectAll(".line")
+            .attr('stroke', d => cScale(d[0])) // no.2
+            .attr('stroke-width', 1.5)
+        })
+        .on("brush", function (event){
+            const [[x0, y0], [x1, y1]] = event.selection;
+            const xMin = xScale.invert(x0);
+            const xMax = xScale.invert(x1);
+            const yMin = yScale.invert(y1); 
+            const yMax = yScale.invert(y0);
+
+            svg.selectAll(".line")
+                .attr("stroke", d =>{
+                    const selected = d[1].some(p =>
+                        p.year >= xMin && p.year <= xMax &&
+                        p.value >= yMin && p.value <= yMax
+                    );
+                    return selected ? "red" : cScale(d[0])
+                })
+                .attr("stroke-width", d => {
+                    const selected = d[1].some(p =>
+                        p.year >= xMin && p.year <= xMax &&
+                        p.value >= yMin && p.value <= yMax
+                    );
+                    return selected ? 3: 1.5;
+                })
+        });
+    svg.append("g")
+        .attr("class", "brush")
+        .call(brush);
 }
